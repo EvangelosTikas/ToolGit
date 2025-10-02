@@ -490,6 +490,41 @@ gh_delete_branch_safe() {
   echo "Deleted branch $name locally and remotely (if they existed)."
 }
 
+
+# Check that your branch is up-to-date with the remote, 
+# TODO: add remote branch option:$1 passed by user
+gh_check_up_to_date() {
+
+    # Fetch the latest updates from the remote
+    git fetch origin
+
+    # Get the name of the current branch
+    current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+    # Determine the main branch (either origin/main or origin/master)
+    main_branch="origin/main"
+    if git show-ref --verify --quiet refs/remotes/origin/master; then
+        main_branch="origin/master"
+    fi
+
+    # Check if the current branch is up to date with origin/main or origin/master
+    echo "Checking if $current_branch is up to date with $main_branch..."
+
+    # Compare the branches
+    up_to_date=$(git rev-list --count ${current_branch}..${main_branch})
+
+    if [ "$up_to_date" -eq 0 ]; then
+        echo "Your branch '$current_branch' is up-to-date with $main_branch."
+    else
+        echo "Your branch '$current_branch' is not up-to-date with $main_branch."
+        echo "The following commits are missing from your branch:"
+
+        # List the missing commits
+        git log ${current_branch}..${main_branch} --oneline
+    fi
+}
+
+
 # Optionally export functions for interactive shells (uncomment if desired)
 # export -f gh_fetch_rebase_remote gh_smart_pull gh_smart_merge gh_delete_local_branches_without_remote gh_delete_remote_branches_without_local gh_compare_hashes gh_search_commits gh_assist_conflicts gh_rescue_detached_head gh_delete_branch_safe gh_help
 
