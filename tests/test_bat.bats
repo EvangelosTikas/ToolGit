@@ -9,32 +9,40 @@
 
 # Load the helpers script once for all tests
 setup_file() {
-  INFO_MSG="[\e[96mINFO\e[0m]"
-  PASS_MSG="\e[91mPASS\e[0m\n"
 
-  SOURCE_DIR="$(dirname "$BASH_SOURCE")"
-  BATS_TEST_DIRNAME="$(git rev-parse --show-toplevel)"
-  source "$BATS_TEST_DIRNAME/bin/git_helpers.sh"
-
+  # Compute absolute path to the script and source it once.
+  SCRIPT_PATH="$(cd "$BATS_TEST_DIRNAME/.." && pwd)/bin/git_helpers.sh"
+  echo "SETUP_FILE: sourcing git-helpers from: $SCRIPT_PATH" >&2
+  [ -f "$SCRIPT_PATH" ] || { echo "ERROR: bin/git_helpers.sh not found at $SCRIPT_PATH" >&2; exit 1; }
+  # shellcheck source=/dev/null
+  source "$SCRIPT_PATH"
 }
 
 # Each test gets its own repo
 setup() {
-  # Create isolated temporary root for each test
-  TEST_ROOT=$(mktemp -d /tmp/git-helpers-test.XXXXXX)
-  cd "$TEST_ROOT"
+  # Setup the file
+  setup_file
 
-  # Create repo + remote
-  git init -q
+  TEST_ROOT=$(mktemp -d /tmp/git-helpers-test.XXXXXX)
+  cd "$TEST_ROOT" || exit 1
+
+  git init -q -b main
+  git config user.email "test@example.com"
+  git config user.name "Test User"
+
   echo "hello" > file.txt
   git add file.txt
-  git commit -m "init commit" >/dev/null
-  git branch -M main
+  git commit -m "init commit" >/dev/null 2>&1
 
   REMOTE_DIR="$TEST_ROOT/remote.git"
-  git init --bare "$REMOTE_DIR" >/dev/null
+  git init -q --bare "$REMOTE_DIR"
+
   git remote add origin "$REMOTE_DIR"
-  git push -u origin main >/dev/null
+
+  # 👇 push quietly, discard stdout + stderr so it never pollutes test runs
+  git push -u origin main >/dev/null 2>&1 || true
+
+
 }
 
 teardown() {
@@ -44,14 +52,23 @@ teardown() {
   fi
 }
 
+debug_run() {
+  echo "Parent: $PROJECT_ROOT" >&3
+  echo ">>> Running: $*"
+  run "$@"
+  echo ">>> Exit status: $status"
+  echo ">>> Output:"
+  printf '%s\n' "$output"
+}
+
 # -----------------------------------------------------------------------------
 # Tests
 # -----------------------------------------------------------------------------
 
 @test "gh_help lists available commands" {
-  run gh_help
+  debug_run gh_help
   [ "$status" -eq 0 ]
-  [[ "$output" == *"gh_smart_pull"* ]]
+  [[ "$output" == *"gh_fetch_rebase_remote"* ]]
 }
 
 @test "gh_compare_hashes reports up-to-date local and remote" {

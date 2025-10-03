@@ -19,11 +19,22 @@
 # If script invoked directly, print help (see bottom down in this file)
 
 # Safety gather any argument passed
-# local all_arg=$*
-arg=${1:-""}
-TG_MSG="[\e[94mToolGit\e[0m]"
-INFO_MSG="[\e[94mMSG\e[0m]"
-PASS_MSG="\e[91mPASS\e[0m\n"
+collect_args () {
+  arg1=${1:-""}
+  echo "Arguments..."
+  echo "$arg1"
+}
+
+
+echo_tg() {
+  TG_MSG="[\e[94mToolGit\e[0m]"
+  # INFO_MSG="[\e[94mMSG\e[0m]"
+  # PASS_MSG="\e[91mPASS\e[0m\n"
+
+  printf "..%s..$1" "$TG_MSG";
+
+}
+
 
 # ---------- Utility helpers ----------
 git_is_repo() {
@@ -43,7 +54,7 @@ get_current () {
 confirm() {
   # prompt for yes/no; returns 0 for yes
   local msg=${1:-"Are you sure?"}
-  local default=${2:-n}
+  # local default=${2:-n}
   read -r -p "$msg [y/N]: " ans
   case "$ans" in
     y|Y|yes|YES) return 0 ;;
@@ -73,7 +84,7 @@ dry_run_or_exec() {
 # ---------- git helpers ----------
 gh_help() {
 
-  printf "$INFO_MSG A list for ToolGit usage...!\n\n"
+  echo_tg "A list for ToolGit usage...!\n"
 
   cat <<'EOF'
 git-helpers - available commands:
@@ -549,12 +560,11 @@ complete -F _gh_completions gh_help gh_fetch_rebase_remote gh_smart_pull gh_smar
 
 # If script invoked directly, print help
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  gh_help
 
   set -o errexit
   set -o pipefail
   set -o nounset
-
+  gh_help
 fi
 
 
