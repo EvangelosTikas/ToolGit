@@ -17,6 +17,9 @@
 
 # ---------- Help ----------
 # If script invoked directly, print help (see bottom down in this file)
+printf "[\033[94mToolGit\033[0m]\n"
+printf "[\033[94m <<< WELCOME! >>> \033[0m]\n"
+
 
 # Safety gather any argument passed
 collect_args () {
@@ -25,13 +28,10 @@ collect_args () {
   echo "$arg1"
 }
 
-
 echo_tg() {
-  TG_MSG="[\e[94mToolGit\e[0m]"
   # INFO_MSG="[\e[94mMSG\e[0m]"
   # PASS_MSG="\e[91mPASS\e[0m\n"
-  printf "$TG_MSG"
-
+  printf "[\033[94mToolGit\033[0m] %s\n" "$*"
 }
 
 
