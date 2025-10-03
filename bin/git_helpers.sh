@@ -20,8 +20,10 @@
 
 # Safety gather any argument passed
 # local all_arg=$*
-local arg=${1:-""}
-
+arg=${1:-""}
+TG_MSG="[\e[94mToolGit\e[0m]"
+INFO_MSG="[\e[94mMSG\e[0m]"
+PASS_MSG="\e[91mPASS\e[0m\n"
 
 # ---------- Utility helpers ----------
 git_is_repo() {
@@ -70,6 +72,9 @@ dry_run_or_exec() {
 
 # ---------- git helpers ----------
 gh_help() {
+
+  printf "$INFO_MSG A list for ToolGit usage...!\n\n"
+
   cat <<'EOF'
 git-helpers - available commands:
 

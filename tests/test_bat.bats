@@ -9,9 +9,13 @@
 
 # Load the helpers script once for all tests
 setup_file() {
+  INFO_MSG="[\e[96mINFO\e[0m]"
+  PASS_MSG="\e[91mPASS\e[0m\n"
+
   SOURCE_DIR="$(dirname "$BASH_SOURCE")"
   BATS_TEST_DIRNAME="$(git rev-parse --show-toplevel)"
   source "$BATS_TEST_DIRNAME/bin/git_helpers.sh"
+
 }
 
 # Each test gets its own repo
