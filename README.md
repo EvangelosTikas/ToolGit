@@ -29,14 +29,27 @@ A complete toolkit of bash helper functions for advanced git workflows:
   gh_help
   ```
 
-Common examples
-  # dry-run a smart pull with rebase for the current branch:
+## Testing 
+  Requires bats and shellcheck.
+
+  [Lint test]
+  ```
+  shellcheck bin/git_helpers.sh 
+  ```
+
+  [Bats smoke test]
+  ```
+  bats tests/test_bat.bats  
+  ```
+  
+## Common examples
+  #### dry-run a smart pull with rebase for the current branch:
   gh_smart_pull --rebase --dry
 
-  # actually delete remote branches that have no local counterpart:
+  #### actually delete remote branches that have no local counterpart:
   gh_delete_remote_branches_without_local --run
 
-  # compare hashes
+  #### compare hashes
   gh_compare_hashes feature/xyz origin
 
   # search commits by message
