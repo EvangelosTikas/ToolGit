@@ -1,0 +1,45 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository 
+      - uses: actions/checkout@v4
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: ~/.buildx-cache
+          key: tmp-${{ github.sha }}
+          restore-keys: |
+            tmp-
+            
+      - name: Pre-build memory usage
+        run: |
+          echo "=== Before build ==="
+          free -h
+          df -h
+            
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck git
+          git clone --depth 1 https://github.com/bats-core/bats-core.git
+          sudo ./bats-core/install.sh /usr/local
+
+      - name: Lint script
+        run: shellcheck git-helpers.sh
+
+      - name: Run Bats tests
+        run: bats tests/
+
+      - name: Check no test repos remain
+        run: |
+          if ls /tmp/git-helpers-test.* 1>/dev/null 2>&1; then
+            echo "Error: leftover test repos detected!"
+            exit 1
+          fi
+          
