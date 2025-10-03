@@ -1,7 +1,8 @@
 # ToolGit
-A toolkit for Git, everything to assist you on your Git experience.
-Everything is easier witha  few commands, ready to port anywhere at any time, any environment (soon to be tested)
-and any user-level.
+An all-around toolkit for Git. 
+*Everything* to assist you on your Git experience.
+Everything is easier with a  few commands, ready to port anywhere at any time, for any environment (soon to be tested)
+and for any user-level.
 
 
 ## git-helpers
