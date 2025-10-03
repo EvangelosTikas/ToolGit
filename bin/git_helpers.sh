@@ -30,8 +30,7 @@ echo_tg() {
   TG_MSG="[\e[94mToolGit\e[0m]"
   # INFO_MSG="[\e[94mMSG\e[0m]"
   # PASS_MSG="\e[91mPASS\e[0m\n"
-
-  printf "..%s..$1" "$TG_MSG";
+  printf "$TG_MSG"
 
 }
 
@@ -348,9 +347,9 @@ gh_compare_hashes() {
   else
     echo "DIFFER: local and remote diverge."
     echo "Commits in local not in remote:"
-    git log --oneline "$remote/$branch".."$branch" || true
+    git log --oneline "$remote"/"$branch".."$branch" || true
     echo "Commits in remote not in local:"
-    git log --oneline "$branch".."$remote/$branch" || true
+    git log --oneline "$branch".."$remote"/"$branch" || true
   fi
 }
 
@@ -532,7 +531,7 @@ gh_check_up_to_date() {
     echo "Checking if $current_branch is up to date with $main_branch..."
 
     # Compare the branches
-    up_to_date=$(git rev-list --count ${current_branch}..${main_branch})
+    up_to_date=$(git rev-list --count "${current_branch}".."${main_branch}")
 
     if [ "$up_to_date" -eq 0 ]; then
         echo "Your branch '$current_branch' is up-to-date with $main_branch."
@@ -541,7 +540,7 @@ gh_check_up_to_date() {
         echo "The following commits are missing from your branch:"
 
         # List the missing commits
-        git log ${current_branch}..${main_branch} --oneline
+        git log "${current_branch}".."${main_branch}" --oneline
     fi
 }
 
@@ -549,11 +548,18 @@ gh_check_up_to_date() {
 # ---------- Bash completion for git-helpers ----------
 
 _gh_completions() {
-  local cur=${COMP_WORDS[COMP_CWORD]}
-  COMPREPLY=( $(compgen -W "gh_help gh_fetch_rebase_remote gh_smart_pull gh_smart_merge gh_delete_local_branches_without_remote gh_delete_remote_branches_without_local gh_compare_hashes gh_search_commits gh_assist_conflicts gh_rescue_detached_head gh_delete_branch_safe gh_check_up_to_date" -- "$cur") )
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    local options=(
+        gh_help gh_fetch_rebase_remote gh_smart_pull gh_smart_merge
+        gh_delete_local_branches_without_remote gh_delete_remote_branches_without_local
+        gh_compare_hashes gh_search_commits gh_assist_conflicts
+        gh_rescue_detached_head gh_delete_branch_safe gh_check_up_to_date
+    )
+
+    mapfile -t COMPREPLY < <(compgen -W "${options[*]}" -- "$cur")
 }
 
-complete -F _gh_completions gh_help gh_fetch_rebase_remote gh_smart_pull gh_smart_merge gh_delete_local_branches_without_remote gh_delete_remote_branches_without_local gh_compare_hashes gh_search_commits gh_assist_conflicts gh_rescue_detached_head gh_delete_branch_safe gh_check_up_to_date
+complete -F _gh_completions gh
 
 # Optionally export functions for interactive shells (uncomment if desired)
 # export -f gh_fetch_rebase_remote gh_smart_pull gh_smart_merge gh_delete_local_branches_without_remote gh_delete_remote_branches_without_local gh_compare_hashes gh_search_commits gh_assist_conflicts gh_rescue_detached_head gh_delete_branch_safe gh_help

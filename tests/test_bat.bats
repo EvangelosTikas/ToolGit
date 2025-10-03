@@ -85,7 +85,13 @@ debug_run() {
 }
 
 @test "gh_smart_pull detects detached HEAD" {
+
   git checkout HEAD^ >/dev/null 2>&1 || skip "need at least 2 commits"
+  echo "hello second time" > file2.txt
+  git add file2.txt
+  git commit -m "file2 commit" >/dev/null 2>&1
+  git push -u origin main >/dev/null 2>&1 || true
+
   run gh_smart_pull --dry
   [ "$status" -ne 0 ]
   [[ "$output" == *"HEAD is detached"* ]]
