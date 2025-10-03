@@ -9,7 +9,7 @@ jobs:
       - name: Checkout repository 
         uses: actions/checkout@v4
 
-      - name: Cache Docker layers
+      - name: Cache
         uses: actions/cache@v4
         with:
           path: ~/.buildx-cache
@@ -31,7 +31,7 @@ jobs:
           sudo ./bats-core/install.sh /usr/local
 
       - name: Lint script
-        run: shellcheck git-helpers.sh
+        run: shellcheck bin/git_helpers.sh
 
       - name: Run Bats tests
         run: bats tests/
