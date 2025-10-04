@@ -1,4 +1,7 @@
-# ToolGit
+# ToolGit 
+
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/EvangelosTikas/ToolGit/.github/workflows/ci.yml)
+
 An all-around toolkit for Git. 
 *Everything* to assist you on your Git experience.
 Everything is easier with a  few commands, ready to port anywhere at any time, for any environment (soon to be tested)
@@ -53,8 +56,8 @@ A complete toolkit of bash helper functions for advanced git workflows:
   #### compare hashes
   gh_compare_hashes feature/xyz origin
 
-  # search commits by message
+  #### search commits by message
   gh_search_commits --grep 'fix bug' 
 
-  # rescue detached HEAD and checkout:
+  #### rescue detached HEAD and checkout:
   gh_rescue_detached_head temp-rescue --checkout
