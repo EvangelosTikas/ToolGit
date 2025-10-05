@@ -1,0 +1,3 @@
+# Run a shellcheck for the main body
+
+shellcheck bin/git_helpers.sh
