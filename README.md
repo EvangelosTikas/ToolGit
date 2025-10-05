@@ -28,6 +28,9 @@ A complete toolkit of bash helper functions for advanced git workflows:
   source /bin/git-helpers.sh
   ```
   Additional Instalation standard practice:
+  `curl -sSL https://raw.githubusercontent.com/<username>/git-helper/main/install.sh | bash`
+  (TODO: *To be tested*)
+
   
   ### Install Test tools
 
