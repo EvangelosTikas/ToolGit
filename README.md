@@ -20,12 +20,28 @@ A complete toolkit of bash helper functions for advanced git workflows:
 
 ## Installation
 
-  ### Make executable and put in PATH
+  ### Make it executable and source it
   ```
-  cp git-helpers.sh ~/bin/git-helpers.sh
+  git clone https://github.com/EvangelosTikas/ToolGit.git
+  # cp git-helpers.sh ~/bin/git-helpers.sh
   chmod +x ~/bin/git-helpers.sh
+  source /bin/git-helpers.sh
   ```
+  Additional Instalation standard practice:
+  
+  ### Install Test tools
 
+  For testing you will need `shellcheck` for linting the bash files which invoke the git functions. For unit-testing you will need
+  `bats`. In Linux both can be installed when called (if not previously installed). 
+  The snipet below serves a Unix installation example.
+  ```[Linux]
+  git clone --depth 1 https://github.com/bats-core/bats-core.git
+  sudo ./bats-core/install.sh /usr/local
+  ```
+  Also use shellcheck online : [shellcheck](https://www.shellcheck.net/)
+  Bats Instalation manual : [bats_core.readthedocs](https://bats-core.readthedocs.io/en/stable/installation.html).
+  
+  
 ## Usage (interactive via sourcing)
 
   ```
