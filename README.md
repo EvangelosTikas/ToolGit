@@ -8,7 +8,7 @@ Everything is easier with a  few commands, ready to port anywhere at any time, f
 and for any user-level.
 
 
-## git-helpers
+**Git Helpers**
 
 A complete toolkit of bash helper functions for advanced git workflows:
 - safe fetching, rebasing, merging
@@ -20,17 +20,19 @@ A complete toolkit of bash helper functions for advanced git workflows:
 
 ## Installation
 
-  ### Make it executable and source it
+  **Option 1: Quick install (no root required)**
+  ```
+  curl -fsSL https://github.com/EvangelosTikas/ToolGit/releases/tag/v0.0.1 | bash
+  ```
+  (TODO: *To be tested*)
+  
+  **Option 2: Make it executable and source it**
   ```
   git clone https://github.com/EvangelosTikas/ToolGit.git
   # cp git-helpers.sh ~/bin/git-helpers.sh
   chmod +x ~/bin/git-helpers.sh
   source /bin/git-helpers.sh
   ```
-  Additional Instalation standard practice:
-  `curl -sSL https://raw.githubusercontent.com/<username>/git-helper/main/install.sh | bash`
-  (TODO: *To be tested*)
-
   
   ### Install Test tools
 
