@@ -1,10 +1,10 @@
-# Makefile for git-helper
+# Makefile for git-helpers
 # ---------------------------------------
 # Install paths (user-local by default)
 PREFIX ?= $(HOME)/.local
 BIN_DIR := $(PREFIX)/bin
-LIB_DIR := $(PREFIX)/lib/git_helper
-TOOL_NAME := git_helper
+LIB_DIR := $(PREFIX)/lib/git_helpers
+TOOL_NAME := ToolGit
 VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 
 # ---------------------------------------
@@ -18,9 +18,9 @@ all: help
 install:
 	@echo "Installing $(TOOL_NAME) version $(VERSION) to $(PREFIX)"
 	mkdir -p $(BIN_DIR) $(LIB_DIR)
-	cp -f bin/git_helper.sh $(LIB_DIR)/
-	cp -f bin/git_helper $(BIN_DIR)/
-	chmod +x $(BIN_DIR)/git_helper
+	cp -f bin/git_helpers.sh $(LIB_DIR)/
+	cp -f bin/git_helpers $(BIN_DIR)/
+	chmod +x $(BIN_DIR)/git_helpers
 	@echo "✅ Installed to $(BIN_DIR)"
 	@echo "Version: $(VERSION)"
 
@@ -29,12 +29,12 @@ install:
 .PHONY: uninstall
 uninstall:
 	@echo "Removing $(TOOL_NAME) from $(PREFIX)"
-	rm -f $(BIN_DIR)/git_helper
+	rm -f $(BIN_DIR)/git_helpers
 	rm -rf $(LIB_DIR)
 	@echo "✅ Uninstalled."
 
 # ---------------------------------------
-# Development helpers
+# Development helper
 .PHONY: lint
 lint:
 	@echo "Running shellcheck..."
@@ -48,8 +48,8 @@ tag:
 	echo "✅ Tagged and pushed $$TAG"
 
 verify_install:
-	which git_helper
-	git_helper --version
+	which ToolGit
+	ToolGit --version
 
 .PHONY: help
 help:
