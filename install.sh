@@ -12,7 +12,7 @@ INSTALL_DIR_DEFAULT="$HOME/.local/bin"
 COMPLETIONS_DIR_BASH="$HOME/.local/share/bash-completion/completions"
 COMPLETIONS_DIR_ZSH="$HOME/.oh-my-zsh/completions"
 
-SCRIPT_NAME="git-helper"
+SCRIPT_NAME="git_helper"
 BIN_PATH="./bin/$SCRIPT_NAME"
 COMPLETIONS_PATH="./completions/$SCRIPT_NAME"
 
