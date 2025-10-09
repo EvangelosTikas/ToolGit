@@ -22,13 +22,13 @@ printf "[\033[94m <<< WELCOME! >>> \033[0m]\n"
 
 
 # Safety gather any argument passed
-collect_args () {
+_collect_args () {
   arg1=${1:-""}
   echo "Arguments..."
   echo "$arg1"
 }
 
-echo_tg() {
+gh_echo() {
   # INFO_MSG="[\e[94mMSG\e[0m]"
   # PASS_MSG="\e[91mPASS\e[0m\n"
   printf "[\033[94mToolGit\033[0m] %s\n" "$*"
@@ -40,12 +40,12 @@ git_is_repo() {
   git rev-parse --is-inside-work-tree >/dev/null 2>&1
 }
 
-current_branch() {
+gh_current_branch() {
   git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "(detached)"
 }
 
-get_current () {
-  printf "[INFO] current branch.\n"
+gh_get_current () {
+  gh_echo "[INFO] current branch.\n"
   current_branch
 }
 
@@ -83,7 +83,7 @@ dry_run_or_exec() {
 # ---------- git helpers ----------
 gh_help() {
 
-  echo_tg "A list for ToolGit usage...!\n"
+  gh_echo "A list for ToolGit usage...!\n"
 
   cat <<'EOF'
 git-helpers - available commands:
@@ -262,6 +262,7 @@ gh_delete_local_branches_without_remote() {
   done
 }
 
+# ---------- delete remote branch ----------
 gh_delete_remote_branches_without_local() {
   abort_if_not_repo || return 1
   local remote="origin"
