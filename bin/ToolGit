@@ -1,4 +1,59 @@
 #!/usr/bin/env bash
+# ==========================================
+# ToolGit - CLI wrapper for git_helpers.sh
+# ==========================================
+set -euo pipefail
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/git_helpers.sh"
-"$@"
+LIB_PATH="${SCRIPT_DIR}/git_helpers.sh"
+
+# Get version from Makefile if available
+VERSION_FILE="${SCRIPT_DIR}/../VERSION"
+VERSION="$(cat "$VERSION_FILE" 2>/dev/null || echo "dev")"
+
+# Ensure library exists
+if [[ ! -f "$LIB_PATH" ]]; then
+  echo "❌ Error: git_helpers.sh not found at $LIB_PATH" >&2
+  exit 1
+fi
+
+# Source the helper functions
+# shellcheck source=/dev/null
+source "$LIB_PATH"
+
+show_help() {
+  echo "ToolGit $VERSION — Git helper CLI"
+  echo
+  echo "Usage: ToolGit <function> [args...]"
+  echo
+  echo "Available functions from git_helpers.sh:"
+  declare -F | awk '{print $3}' | grep -E '^git_' | sort | sed 's/^/  /'
+  echo
+  echo "Options:"
+  echo "  --help, -h      Show this help"
+  echo "  --version, -v   Show version"
+}
+
+# Handle global options
+case "${1:-}" in
+  ""|"-h"|"--help")
+    show_help
+    exit 0
+    ;;
+  "-v"|"--version")
+    echo "ToolGit version $VERSION"
+    exit 0
+    ;;
+esac
+
+FUNC="$1"; shift
+
+# Check if the requested function exists
+if ! declare -F "$FUNC" >/dev/null; then
+  echo "❌ Error: Unknown function '$FUNC'" >&2
+  echo "Run 'ToolGit --help' for available functions."
+  exit 1
+fi
+
+# Run the helper function
+"$FUNC" "$@"
