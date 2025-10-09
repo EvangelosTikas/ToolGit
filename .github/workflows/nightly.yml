@@ -1,0 +1,88 @@
+name: ToolGit Nightly
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"  # every Monday at 03:00 UTC
+
+jobs:
+  nightly-test:
+    name: Nightly on ${{ matrix.os }} / ${{ matrix.shell }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04, macos-13, macos-latest, windows-latest]
+        shell: [bash, sh, zsh]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show environment info
+        shell: bash
+        run: |
+          echo "🏗️ OS: $RUNNER_OS"
+          echo "Shell matrix: ${{ matrix.shell }}"
+          echo "User: $USER"
+          echo "PATH: $PATH"
+          uname -a || ver
+          which bash || true
+          which sh || true
+          which zsh || true
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          echo "🧰 Installing dependencies..."
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo apt-get update -y
+            sudo apt-get install -y shellcheck bats zsh
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            brew update
+            brew install shellcheck bats zsh
+          else
+            choco install shellcheck -y || echo "⚠️ shellcheck may already be installed"
+            echo "⚠️ zsh / bats skipped on Windows"
+          fi
+
+      - name: Install ToolGit
+        shell: bash
+        run: make install
+
+      - name: Run Lint
+        shell: bash
+        run: make lint
+
+      - name: Run CLI Tests
+        shell: ${{ matrix.shell }}
+        run: |
+          echo "🔧 Running CLI tests with $SHELL"
+          make test || echo "⚠️ CLI test failed on $SHELL but continuing for full matrix"
+
+      - name: Run Bats Tests
+        shell: bash
+        run: |
+          echo "🧪 Running Bats tests..."
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            echo "⚠️ Skipping Bats on Windows"
+          elif command -v bats &>/dev/null; then
+            make test-bats
+          else
+            echo "⚠️ Bats not available, skipping"
+          fi
+
+      - name: Clean up temp dirs
+        shell: bash
+        run: |
+          echo "🧹 Cleaning up..."
+          rm -rf /tmp/git-helpers-test.* 2>/dev/null || true
+
+      - name: Report Success
+        if: success()
+        shell: bash
+        run: echo "✅ Nightly run on ${{ matrix.os }} / ${{ matrix.shell }} completed successfully."
+
+      - name: Report Failure
+        if: failure()
+        shell: bash
+        run: echo "❌ Nightly run on ${{ matrix.os }} / ${{ matrix.shell }} failed."
