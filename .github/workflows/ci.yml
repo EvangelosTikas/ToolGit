@@ -24,8 +24,7 @@ jobs:
           echo "=== System Information ==="
           uname -a || ver
           echo "Runner OS: $RUNNER_OS"
-          echo "User: $USER"
-          echo "Current shell: $SHELL"
+          echo "Current user: $USER"
 
       - name: Show pre-build disk & memory usage
         shell: bash
@@ -35,11 +34,13 @@ jobs:
             free -h || true
             df -h
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            vm_stat
+            vm_stat | head -10 || true
             df -h
           else
-            systeminfo | findstr /C:"Total Physical Memory" || true
-            Get-PSDrive -PSProvider FileSystem | Select-Object Name,Used,Free
+            echo "Memory info (Windows via Bash):"
+            systeminfo | grep -i "Memory" || true
+            echo "Disk usage:"
+            df -h || true
           fi
 
       - name: Install dependencies
@@ -54,7 +55,7 @@ jobs:
             brew install shellcheck bats
           else
             choco install shellcheck -y || echo "Warning: shellcheck may already be installed"
-            echo "Warning: Bats not available on Windows — skipping"
+            echo "Warning: Skipping Bats on Windows (not supported)"
           fi
 
       - name: Install ToolGit
@@ -100,7 +101,7 @@ jobs:
               ;;
             Windows)
               if ls "$TEMP"\\git-helpers-test.* 1>/dev/null 2>&1; then
-                echo "Error: leftover test repos detected in %TEMP%!"
+                echo "Error: leftover test repos detected in TEMP!"
                 exit 1
               fi
               ;;
@@ -111,10 +112,4 @@ jobs:
         shell: bash
         run: |
           echo "=== After build ==="
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
-            df -h
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            df -h
-          else
-            Get-PSDrive -PSProvider FileSystem | Select-Object Name,Used,Free
-          fi
+          df -h || true
