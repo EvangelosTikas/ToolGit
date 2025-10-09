@@ -9,7 +9,7 @@
 # - assist with conflicts and rescue detached HEAD states
 #
 # Usage:
-#   source /path/to/git-helpers.sh
+#   source /path/to/git_helpers.sh
 #   gh_help               # show help and exported commands
 #
 # Author: Evangelos Tikas
