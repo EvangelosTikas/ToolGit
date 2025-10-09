@@ -31,8 +31,8 @@ install:
 	chmod +x "$(BIN_DIR)/ToolGit"
 	echo "$(VERSION)" > $(VERSION_FILE)
 	@echo "✅ Installed $(TOOL_NAME) → $(BIN_DIR)/ToolGit"
-	@printf "[\033[94mToolGit\033[0m]\n"
-	@printf "[\033[94m <<< WELCOME! >>> \033[0m]\n"
+# 	@printf "[\033[94mToolGit\033[0m]\n"
+# 	@printf "[\033[94m <<< WELCOME! >>> \033[0m]\n"
 
 uninstall:
 	@echo "🧹 Removing $(TOOL_NAME)..."

@@ -1,75 +1,65 @@
 #!/usr/bin/env bash
-# ToolGit — CLI wrapper for git_helpers.sh
-
 set -euo pipefail
 
-# --- Resolve path to this script (cross-platform, symlink-safe) ---
-SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE" ]; do
-  DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
-  SOURCE="$(readlink "$SOURCE")"
-  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
-done
-SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+TOOLGIT_LIB_DIR="${TOOLGIT_LIB_DIR:-$HOME/.local/lib/ToolGit}"
+HELPERS_FILE="$TOOLGIT_LIB_DIR/git_helpers.sh"
 
-# --- Locate library (lib/ToolGit/git_helpers.sh) ---
-LIB_DIR="$SCRIPT_DIR/../lib/ToolGit"
-LIB_PATH="${TOOLGIT_LIB_PATH:-$LIB_DIR/git_helpers.sh}"
-
-if [[ ! -f "$LIB_PATH" ]]; then
-  echo "❌ Error: git_helpers.sh not found at $LIB_PATH" >&2
-  echo "💡 Try reinstalling: make install" >&2
-  exit 1
-fi
-
-# --- Source the helper library ---
-# shellcheck source=/dev/null
-source "$LIB_PATH"
-
-TOOLGIT_VERSION="${TOOLGIT_VERSION:-dev}"
-
-# --- Built-in help function ---
-show_help() {
-  cat <<EOF
-ToolGit — Git helper CLI
-Version: $TOOLGIT_VERSION
-
-Usage:
-  ToolGit <command> [args...]
-
-Examples:
-  ToolGit sync
-  ToolGit branch-cleanup
-  ToolGit --help
-
-Available helper functions:
-EOF
-  # List all functions starting with "git_" defined in git_helpers.sh
-  declare -F | awk '{print $3}' | grep '^git_' | sort || echo "  (no git_* functions found)"
+ensure_helpers_exist() {
+    # Ensure the helpers file exists
+    if [[ ! -f "$HELPERS_FILE" ]]; then
+        mkdir -p "$TOOLGIT_LIB_DIR"
+        cp "$(dirname "$0")/git_helpers.sh" "$HELPERS_FILE"
+    fi
 }
 
-# --- CLI argument parsing ---
-case "${1:-}" in
-  -h|--help)
-    show_help
-    exit 0
-    ;;
-  -v|--version)
-    echo "ToolGit version $TOOLGIT_VERSION"
-    exit 0
-    ;;
-  "" )
-    show_help
-    exit 0
-    ;;
-esac
+source_helpers() {
+    # Source the helpers file into the current shell
+    if [[ -f "$HELPERS_FILE" ]]; then
+        source "$HELPERS_FILE"
+        return 0
+    else
+        echo "Error: Helpers file not found at $HELPERS_FILE" >&2
+        return 1
+    fi
+}
 
-# --- Execute function if defined ---
-cmd="$1"; shift
-if declare -F "$cmd" >/dev/null 2>&1; then
-  "$cmd" "$@"
-else
-  echo "❌ Unknown command: $cmd"
-  echo "💡 Run 'ToolGit --help' for available commands."
-  exit 1
-fi
+main() {
+    # Ensure helpers exist first
+    ensure_helpers_exist
+
+    # Source helpers into current shell
+    if ! source_helpers; then
+        echo "Error: Failed to source helpers" >&2
+        return 1
+    fi
+
+    # Handle CLI commands safely
+    case "${1:-}" in
+        --help)
+            echo "ToolGit CLI — available commands:"
+            declare -F | awk '{print $3}' | grep -E '^gh_'
+            return 0
+            ;;
+        --version)
+            [[ -f "$TOOLGIT_LIB_DIR/../VERSION" ]] && cat "$TOOLGIT_LIB_DIR/../VERSION" || echo "dev"
+            return 0
+            ;;
+        *)
+            # If the first argument matches a function, call it
+            if [[ -n "${1:-}" ]] && declare -f "${1}" > /dev/null 2>&1; then
+                "$@"
+                return 0
+            elif [[ -n "${1:-}" ]]; then
+                echo "Error: Unknown command or function '${1}'" >&2
+                echo "Use 'ToolGit --help' to see available functions" >&2
+                return 1
+            else
+                echo "ToolGit loaded. Type ToolGit --help to list functions."
+                return 0
+            fi
+            ;;
+    esac
+}
+
+# Run main function
+main "$@"

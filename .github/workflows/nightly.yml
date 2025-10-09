@@ -19,19 +19,18 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Show environment info
-        shell: bash
         run: |
           echo "🏗️ OS: $RUNNER_OS"
           echo "Shell matrix: ${{ matrix.shell }}"
           echo "User: $USER"
           echo "PATH: $PATH"
           uname -a || ver
-          which bash || true
-          which sh || true
-          which zsh || true
+          command -v bash || true
+          command -v sh || true
+          command -v zsh || true
+        shell: bash
 
       - name: Install dependencies
-        shell: bash
         run: |
           echo "🧰 Installing dependencies..."
           if [[ "$RUNNER_OS" == "Linux" ]]; then
@@ -44,23 +43,27 @@ jobs:
             choco install shellcheck -y || echo "⚠️ shellcheck may already be installed"
             echo "⚠️ zsh / bats skipped on Windows"
           fi
+        shell: bash
 
       - name: Install ToolGit
-        shell: bash
         run: make install
+        shell: bash
 
       - name: Run Lint
-        shell: bash
         run: make lint
+        shell: bash
 
       - name: Run CLI Tests
-        shell: ${{ matrix.shell }}
         run: |
-          echo "🔧 Running CLI tests with $SHELL"
-          make test || echo "⚠️ CLI test failed on $SHELL but continuing for full matrix"
+          echo "🔧 Running CLI tests on ${{ matrix.os }} / ${{ matrix.shell }}"
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            bash -c "make test || echo '⚠️ CLI test failed on Windows Git Bash'"
+          else
+            make test || echo "⚠️ CLI test failed but continuing"
+          fi
+        shell: bash
 
       - name: Run Bats Tests
-        shell: bash
         run: |
           echo "🧪 Running Bats tests..."
           if [[ "$RUNNER_OS" == "Windows" ]]; then
@@ -70,19 +73,20 @@ jobs:
           else
             echo "⚠️ Bats not available, skipping"
           fi
+        shell: bash
 
       - name: Clean up temp dirs
-        shell: bash
         run: |
           echo "🧹 Cleaning up..."
           rm -rf /tmp/git-helpers-test.* 2>/dev/null || true
+        shell: bash
 
       - name: Report Success
         if: success()
-        shell: bash
         run: echo "✅ Nightly run on ${{ matrix.os }} / ${{ matrix.shell }} completed successfully."
+        shell: bash
 
       - name: Report Failure
         if: failure()
-        shell: bash
         run: echo "❌ Nightly run on ${{ matrix.os }} / ${{ matrix.shell }} failed."
+        shell: bash

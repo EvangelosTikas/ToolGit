@@ -17,9 +17,6 @@
 
 # ---------- Help ----------
 # If script invoked directly, print help (see bottom down in this file)
-printf "[\033[94mToolGit\033[0m]\n"
-printf "[\033[94m <<< WELCOME! >>> \033[0m]\n"
-
 
 # Safety gather any argument passed
 _collect_args () {
@@ -27,6 +24,11 @@ _collect_args () {
   echo "Arguments..."
   echo "$arg1"
 }
+
+# log_info()    { echo -e "ℹ️  \033[1;34m$*\033[0m"; }
+# log_warn()    { echo -e "⚠️  \033[1;33m$*\033[0m"; }
+# log_error()   { echo -e "❌ \033[1;31m$*\033[0m" >&2; }
+# log_success() { echo -e "✅ \033[1;32m$*\033[0m"; }
 
 gh_echo() {
   # INFO_MSG="[\e[94mMSG\e[0m]"
