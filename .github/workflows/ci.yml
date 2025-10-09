@@ -1,4 +1,4 @@
-name: CI
+name: ToolGit CI
 
 on:
   push:
@@ -15,56 +15,106 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-      - name: Checkout repository 
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.buildx-cache
-          key: tmp-${{ github.sha }}
-          restore-keys: |
-            tmp-
-            
-      - name: Pre-build memory usage
+      - name: Show system info
+        shell: bash
+        run: |
+          echo "=== System Information ==="
+          uname -a || ver
+          echo "Runner OS: $RUNNER_OS"
+          echo "User: $USER"
+          echo "Current shell: $SHELL"
+
+      - name: Show pre-build disk & memory usage
+        shell: bash
         run: |
           echo "=== Before build ==="
-          free -h
-          df -h
-            
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            free -h || true
+            df -h
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            vm_stat
+            df -h
+          else
+            systeminfo | findstr /C:"Total Physical Memory" || true
+            Get-PSDrive -PSProvider FileSystem | Select-Object Name,Used,Free
+          fi
+
       - name: Install dependencies
         shell: bash
         run: |
+          echo "=== Installing dependencies for $RUNNER_OS ==="
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update -y
             sudo apt-get install -y shellcheck bats
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            brew update
             brew install shellcheck bats
           else
-            choco install shellcheck
-            # Bats may not exist natively on Windows, skip if unavailable
+            choco install shellcheck -y || echo "Warning: shellcheck may already be installed"
+            echo "Warning: Bats not available on Windows — skipping"
           fi
 
       - name: Install ToolGit
         shell: bash
-        run: make install
+        run: |
+          echo "=== Installing ToolGit ==="
+          make install
 
       - name: Run Lint
         shell: bash
-        run: make lint
+        run: |
+          echo "=== Lint ==="
+          make lint
 
       - name: Run CLI Tests
         shell: bash
-        run: make test
+        run: |
+          echo "=== CLI Tests ==="
+          make test
 
       - name: Run Bats Tests
         shell: bash
-        run: make test-bats || echo "⚠️ Skipping Bats tests if unsupported on Windows"
-
-      - name: Check no test repos remain
         run: |
-          if ls /tmp/git-helpers-test.* 1>/dev/null 2>&1; then
-            echo "Error: leftover test repos detected!"
-            exit 1
+          echo "=== Bats Tests ==="
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            echo "Warning: Skipping Bats on Windows"
+          elif command -v bats &>/dev/null; then
+            make test-bats
+          else
+            echo "Warning: Bats not available, skipping"
           fi
-          
+
+      - name: Check for leftover test repos
+        shell: bash
+        run: |
+          echo "=== Checking for leftover test repos ==="
+          case "$RUNNER_OS" in
+            Linux|macOS)
+              if ls /tmp/git-helpers-test.* 1>/dev/null 2>&1; then
+                echo "Error: leftover test repos detected in /tmp!"
+                exit 1
+              fi
+              ;;
+            Windows)
+              if ls "$TEMP"\\git-helpers-test.* 1>/dev/null 2>&1; then
+                echo "Error: leftover test repos detected in %TEMP%!"
+                exit 1
+              fi
+              ;;
+          esac
+          echo "Pass: No leftover test repos detected."
+
+      - name: Post-build disk usage
+        shell: bash
+        run: |
+          echo "=== After build ==="
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            df -h
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            df -h
+          else
+            Get-PSDrive -PSProvider FileSystem | Select-Object Name,Used,Free
+          fi
