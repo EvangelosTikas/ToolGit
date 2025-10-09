@@ -22,9 +22,9 @@ A complete toolkit of bash helper functions for advanced git workflows:
 
   **Option 1: Quick install (no root required)**
   ```
-  curl -fsSL https://github.com/EvangelosTikas/ToolGit/releases/tag/v0.0.1 | bash
+  make install
   ```
-  (TODO: *To be tested*)
+
   
   **Option 2: Make it executable and source it**
   ```
